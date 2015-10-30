@@ -43,20 +43,6 @@ namespace Microsoft.Maker.Storage.OneDrive
             httpClient = new HttpClient(filter);
         }
 
-        public async void Login(string clientId, string clientSecret, string redirectUrl)
-        {
-            this.clientId = clientId;
-            this.clientSecret = clientSecret;
-            this.redirectUrl = redirectUrl;
-
-            //TODO: show UI for login, get access code
-            string accessCode = "";
-
-            await GetTokens(accessCode, "code", "authorization_code");
-
-            StartTimer();
-        }
-
         public async void Login(string clientId, string clientSecret, string redirectUrl, string accessCode)
         {
             this.clientId = clientId;
