@@ -35,6 +35,9 @@ namespace Microsoft.Maker.Storage.OneDrive
         private string accessToken = "";
         private string refreshToken = "";    
 
+        /// <summary>
+        /// Instantiates a OneDrive connector object. Requires a call to "login" function to complete authorization.
+        /// </summary>
         public OnedriveConnector()
         {
             var filter = new HttpBaseProtocolFilter();
@@ -43,6 +46,13 @@ namespace Microsoft.Maker.Storage.OneDrive
             httpClient = new HttpClient(filter);
         }
 
+        /// <summary>
+        /// Obtains authorization codes from OneDrive login service. Requires access code to be obtained from OneDrive as described in the OneDrive authorization documentation.
+        /// </summary>
+        /// <param name="clientId"></param> Client ID obtained from app registration
+        /// <param name="clientSecret"></param> Client secret obtained from app registration
+        /// <param name="redirectUrl"></param> Redirect URL obtained from app registration
+        /// <param name="accessCode"></param> Access Code obtained from earlier login prompt.
         public async void Login(string clientId, string clientSecret, string redirectUrl, string accessCode)
         {
             this.clientId = clientId;
@@ -98,6 +108,9 @@ namespace Microsoft.Maker.Storage.OneDrive
             }
         }
 
+        /// <summary>
+        /// Disposes of any user specific data obtained during login process.
+        /// </summary>
         public void Logout()
         {
             clientId = "";
