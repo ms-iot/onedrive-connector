@@ -53,7 +53,7 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <param name="clientSecret"></param> Client secret obtained from app registration
         /// <param name="redirectUrl"></param> Redirect URL obtained from app registration
         /// <param name="accessCode"></param> Access Code obtained from earlier login prompt.
-        public async void Login(string clientId, string clientSecret, string redirectUrl, string accessCode)
+        public async Task Login(string clientId, string clientSecret, string redirectUrl, string accessCode)
         {
             this.clientId = clientId;
             this.clientSecret = clientSecret;
@@ -69,7 +69,7 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// </summary>
         /// <param name="file"></param> The file to upload to OneDrive. The file will be read, and a copy uploaded. The original file object will not be modified.
         /// <param name="destinationPath"></param> The path to the destination on Onedrive. Passing in an empty string will place the file in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random"
-        public async void UploadFile(StorageFile file, string destinationPath)
+        public async Task UploadFile(StorageFile file, string destinationPath)
         {
             string uploadUri = String.Format(UploadUrlFormat, destinationPath, file.Name);
 
@@ -96,7 +96,7 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// </summary>
         /// <param name="fileName"></param> The name of the file to delete
         /// <param name="pathToFile"></param> The path to the file on Onedrive. Passing in an empty string will look for the file in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random"
-        public async void DeleteFile(string fileName, string pathToFile)
+        public async Task DeleteFile(string fileName, string pathToFile)
         {
             string deleteUri = String.Format("https://api.onedrive.com/v1.0/drive/root:{1}/{2}", pathToFile, fileName);
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete, new Uri(deleteUri)))
