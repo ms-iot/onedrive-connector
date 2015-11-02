@@ -4,7 +4,7 @@ This repository contains the code block for a OneDrive helper. This demonstrates
 
 ## OneDrive Authorization
 The OneDrive Dev Center can be located at https://dev.onedrive.com/
-Follow the instructions on the OneDrive Dev Center to register your application. OneDrive requires registration before it will accept requests from you application, and will provide a Client ID and Secret that need presented as part of the authorization process your application users will go through.
+Follow the instructions on the OneDrive Dev Center to register your application. OneDrive requires registration before it will accept requests from you application, and will provide a Client ID and Secret that need to be presented as part of the authorization process your application users will go through.
 
 At this time, this OneDrive connector only does part of the authentication process. Specifically, it implements steps 2 and 3 of the Token Flow, as described in the OneDrive Dev Center. You will need to present a OneDrive login page to the user, and retrieve an access code. That code can then be passed into the "Login" method of this connector. After logging in, commands for file upload to and deletion from OneDrive become one line calls!
 
