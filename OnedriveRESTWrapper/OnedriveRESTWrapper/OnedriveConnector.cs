@@ -12,7 +12,7 @@ using Windows.Web.Http.Headers;
 
 namespace Microsoft.Maker.Storage.OneDrive
 {
-    public sealed class OnedriveConnector
+    public sealed class OneDriveConnector
     {
         public bool isLoggedIn { get; private set; } = false;
 
@@ -38,7 +38,7 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <summary>
         /// Instantiates a OneDrive connector object. Requires a call to "login" function to complete authorization.
         /// </summary>
-        public OnedriveConnector()
+        public OneDriveConnector()
         {
             var filter = new HttpBaseProtocolFilter();
             filter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
