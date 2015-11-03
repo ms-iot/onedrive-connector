@@ -136,6 +136,7 @@ namespace Microsoft.Maker.Storage.OneDrive
             refreshToken = "";
             refreshTimer.Dispose();
             httpClient.DefaultRequestHeaders.Clear();
+            httpClient.Dispose();
             isLoggedIn = false;
         }
 
