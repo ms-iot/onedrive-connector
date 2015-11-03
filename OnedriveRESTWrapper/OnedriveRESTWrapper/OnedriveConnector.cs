@@ -30,6 +30,7 @@ namespace Microsoft.Maker.Storage.OneDrive
 
         private const string LogoutUriFormat = "https://login.live.com/oauth20_logout.srf?client_id={0}&redirect_uri={1}";
         private const string UploadUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{1}/{2}:/content";
+        private const string DeleteUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{1}/{2}";
         private const string TokenUri = "https://login.live.com/oauth20_token.srf";
         private const string TokenContentFormat = "client_id={0}&redirect_uri={1}&client_secret={2}&{3}={4}&grant_type={5}";
 
@@ -104,7 +105,7 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <param name="pathToFile"></param> The path to the file on Onedrive. Passing in an empty string will look for the file in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random"
         public async Task DeleteFile(string fileName, string pathToFile)
         {
-            string deleteUri = String.Format("https://api.onedrive.com/v1.0/drive/root:{1}/{2}", pathToFile, fileName);
+            string deleteUri = String.Format(DeleteUrlFormat, pathToFile, fileName);
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete, new Uri(deleteUri)))
             {
                 using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
