@@ -14,15 +14,21 @@ namespace Microsoft.Maker.Storage.OneDrive
 {
     public sealed class OneDriveConnector
     {
+        /// <summary>
+        /// Is true if currently logged in to OneDrive, false otherwise.
+        /// </summary>
         public bool isLoggedIn { get; private set; } = false;
+
+        /// <summary>
+        /// A string that can be used to properly format the Uri for obtaining the access code.
+        /// </summary>
+        public const string LoginUriFormat = "https://login.live.com/oauth20_authorize.srf?client_id={0}&scope=wl.offline_access onedrive.readwrite&response_type=code&redirect_uri={2}";
 
         private const int ReauthSpanHours = 0;
         private const int ReauthSpanMinutes = 50;
         private const int ReauthSpanSeconds = 0;
-              
-        private const string LoginUriFormat = "https://login.live.com/oauth20_authorize.srf?client_id={0}&scope={1}&response_type=code&redirect_uri={2}";
+
         private const string LogoutUriFormat = "https://login.live.com/oauth20_logout.srf?client_id={0}&redirect_uri={1}";
-        private const string ScopeForAuthRequests = "wl.offline_access onedrive.readwrite";
         private const string UploadUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{1}/{2}:/content";
         private const string TokenUri = "https://login.live.com/oauth20_token.srf";
         private const string TokenContentFormat = "client_id={0}&redirect_uri={1}&client_secret={2}&{3}={4}&grant_type={5}";
@@ -111,8 +117,17 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <summary>
         /// Disposes of any user specific data obtained during login process.
         /// </summary>
-        public void Logout()
+        public async Task Logout()
         {
+            string logoutUri = string.Format(LogoutUriFormat, clientId, redirectUrl);
+            using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(logoutUri)))
+            {
+                using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
+                {
+                    response.EnsureSuccessStatusCode();
+                }
+            }
+
             clientId = "";
             clientSecret = "";
             redirectUrl = "";
