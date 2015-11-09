@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
@@ -61,15 +62,19 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <param name="clientSecret"></param> Client secret obtained from app registration
         /// <param name="redirectUrl"></param> Redirect URL obtained from app registration
         /// <param name="accessCode"></param> Access Code obtained from earlier login prompt.
-        public async Task Login(string clientId, string clientSecret, string redirectUrl, string accessCode)
+        public IAsyncAction LoginAsync(string clientId, string clientSecret, string redirectUrl, string accessCode)
         {
             this.clientId = clientId;
             this.clientSecret = clientSecret;
             this.redirectUrl = redirectUrl;
 
-            await GetTokens(accessCode, "code", "authorization_code");
-
             StartTimer();
+
+            return Task.Run(async () =>
+            {
+                await GetTokens(accessCode, "code", "authorization_code");
+            }).AsAsyncAction();
+           
         }
 
         /// <summary>
