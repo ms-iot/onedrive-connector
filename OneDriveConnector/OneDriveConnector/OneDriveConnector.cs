@@ -32,11 +32,11 @@ namespace Microsoft.Maker.Storage.OneDrive
 
         private HttpClient httpClient;
         private Timer refreshTimer;
-        private string clientId = "";
-        private string clientSecret = "";
-        private string redirectUrl = "";
-        private string accessToken = "";
-        private string refreshToken = "";    
+        private string clientId = string.Empty;
+        private string clientSecret = string.Empty;
+        private string redirectUrl = string.Empty;
+        private string accessToken = string.Empty;
+        private string refreshToken = string.Empty;    
 
         /// <summary>
         /// Instantiates a OneDrive connector object. Requires a call to "login" function to complete authorization.
@@ -130,11 +130,11 @@ namespace Microsoft.Maker.Storage.OneDrive
                 }
             }
 
-            clientId = "";
-            clientSecret = "";
-            redirectUrl = "";
-            accessToken = "";
-            refreshToken = "";
+            clientId = string.Empty;
+            clientSecret = string.Empty;
+            redirectUrl = string.Empty;
+            accessToken = string.Empty;
+            refreshToken = string.Empty;
             refreshTimer.Dispose();
             httpClient.DefaultRequestHeaders.Clear();
             httpClient.Dispose();
