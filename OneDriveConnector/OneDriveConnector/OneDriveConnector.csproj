@@ -7,8 +7,8 @@
     <ProjectGuid>{0BFF7810-2BE6-4778-A32B-E9B1B0F3982E}</ProjectGuid>
     <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OnedriveRESTWrapper</RootNamespace>
-    <AssemblyName>OnedriveRESTWrapper</AssemblyName>
+    <RootNamespace>OnedriveConnector</RootNamespace>
+    <AssemblyName>OnedriveConnector</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
