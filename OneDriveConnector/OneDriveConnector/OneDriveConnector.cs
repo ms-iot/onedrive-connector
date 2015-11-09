@@ -111,15 +111,18 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// </summary>
         /// <param name="fileName"></param> The name of the file to delete
         /// <param name="pathToFile"></param> The path to the file on Onedrive. Passing in an empty string will look for the file in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random"
-        public async Task DeleteFile(string fileName, string pathToFile)
+        public IAsyncAction DeleteFileAsync(string fileName, string pathToFile)
         {
             string deleteUri = String.Format(DeleteUrlFormat, pathToFile, fileName);
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete, new Uri(deleteUri)))
             {
-                using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
+                return Task.Run(async () =>
                 {
-                    response.EnsureSuccessStatusCode();
-                }
+                    using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
+                    {
+                        response.EnsureSuccessStatusCode();
+                    }
+                }).AsAsyncAction();
             }
         }
 
