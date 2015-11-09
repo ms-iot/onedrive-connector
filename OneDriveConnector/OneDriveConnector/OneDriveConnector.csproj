@@ -7,8 +7,8 @@
     <ProjectGuid>{0BFF7810-2BE6-4778-A32B-E9B1B0F3982E}</ProjectGuid>
     <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OnedriveConnector</RootNamespace>
-    <AssemblyName>OnedriveConnector</AssemblyName>
+    <RootNamespace>Microsoft.Maker.Storage.OnedriveConnector</RootNamespace>
+    <AssemblyName>Microsoft.Maker.Storage.OnedriveConnector</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
