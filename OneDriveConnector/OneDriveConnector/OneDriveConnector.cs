@@ -82,7 +82,7 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// </summary>
         /// <param name="file"></param> The file to upload to OneDrive. The file will be read, and a copy uploaded. The original file object will not be modified.
         /// <param name="destinationPath"></param> The path to the destination on Onedrive. Passing in an empty string will place the file in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random"
-        public IAsyncAction UploadFile(StorageFile file, string destinationPath)
+        public IAsyncAction UploadFileAsync(StorageFile file, string destinationPath)
         {
             string uploadUri = String.Format(UploadUrlFormat, destinationPath, file.Name);
 
