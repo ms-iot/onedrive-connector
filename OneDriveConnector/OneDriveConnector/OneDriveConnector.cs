@@ -17,17 +17,13 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <summary>
         /// Is true if currently logged in to OneDrive, false otherwise.
         /// </summary>
-        public bool isLoggedIn { get; private set; } = false;
-
-        /// <summary>
-        /// A string that can be used to properly format the Uri for obtaining the access code.
-        /// </summary>
-        public const string LoginUriFormat = "https://login.live.com/oauth20_authorize.srf?client_id={0}&scope=wl.offline_access onedrive.readwrite&response_type=code&redirect_uri={2}";
+        public bool isLoggedIn { get; private set; } = false;        
 
         private const int ReauthSpanHours = 0;
         private const int ReauthSpanMinutes = 50;
         private const int ReauthSpanSeconds = 0;
 
+        private const string LoginUriFormat = "https://login.live.com/oauth20_authorize.srf?client_id={0}&scope=wl.offline_access onedrive.readwrite&response_type=code&redirect_uri={2}";
         private const string LogoutUriFormat = "https://login.live.com/oauth20_logout.srf?client_id={0}&redirect_uri={1}";
         private const string UploadUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{1}/{2}:/content";
         private const string DeleteUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{1}/{2}";
@@ -51,6 +47,11 @@ namespace Microsoft.Maker.Storage.OneDrive
             filter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
             filter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
             httpClient = new HttpClient(filter);
+        }
+
+        public string FormatAccessTokenUriString(string clientId, string redirectUri)
+        {
+            return string.Format(LoginUriFormat, clientId, redirectUri);
         }
 
         /// <summary>
