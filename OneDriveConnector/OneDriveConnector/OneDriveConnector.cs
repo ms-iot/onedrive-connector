@@ -129,17 +129,8 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <summary>
         /// Disposes of any user specific data obtained during login process.
         /// </summary>
-        public async Task Logout()
+        public IAsyncAction LogoutAsync()
         {
-            string logoutUri = string.Format(LogoutUriFormat, clientId, redirectUrl);
-            using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(logoutUri)))
-            {
-                using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
-                {
-                    response.EnsureSuccessStatusCode();
-                }
-            }
-
             clientId = string.Empty;
             clientSecret = string.Empty;
             redirectUrl = string.Empty;
@@ -149,6 +140,19 @@ namespace Microsoft.Maker.Storage.OneDrive
             httpClient.DefaultRequestHeaders.Clear();
             httpClient.Dispose();
             isLoggedIn = false;
+
+            string logoutUri = string.Format(LogoutUriFormat, clientId, redirectUrl);
+            using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(logoutUri)))
+            {
+                return Task.Run(async () =>
+                {
+                    using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
+                    {
+                        response.EnsureSuccessStatusCode();
+                    }
+                }).AsAsyncAction();
+            }
+
         }
 
         private async void Reauthorize(object stateInfo)
