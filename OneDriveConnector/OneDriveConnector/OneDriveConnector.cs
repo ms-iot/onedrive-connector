@@ -24,10 +24,10 @@ namespace Microsoft.Maker.Storage.OneDrive
         private const int ReauthSpanMinutes = 50;
         private const int ReauthSpanSeconds = 0;
 
-        private const string LoginUriFormat = "https://login.live.com/oauth20_authorize.srf?client_id={0}&scope=wl.offline_access onedrive.readwrite&response_type=code&redirect_uri={2}";
+        private const string LoginUriFormat = "https://login.live.com/oauth20_authorize.srf?client_id={0}&scope=wl.offline_access onedrive.readwrite&response_type=code&redirect_uri={1}";
         private const string LogoutUriFormat = "https://login.live.com/oauth20_logout.srf?client_id={0}&redirect_uri={1}";
-        private const string UploadUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{1}/{2}:/content";
-        private const string DeleteUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{1}/{2}";
+        private const string UploadUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{0}/{1}:/content";
+        private const string DeleteUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{0}/{1}";
         private const string TokenUri = "https://login.live.com/oauth20_token.srf";
         private const string TokenContentFormat = "client_id={0}&redirect_uri={1}&client_secret={2}&{3}={4}&grant_type={5}";
 
