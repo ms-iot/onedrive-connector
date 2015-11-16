@@ -18,7 +18,9 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <summary>
         /// Is true if currently logged in to OneDrive, false otherwise.
         /// </summary>
-        public bool isLoggedIn { get; private set; } = false;        
+        public bool isLoggedIn { get; private set; } = false;
+        public string accessToken { get; private set; } = string.Empty;
+        public string refreshToken { get; private set; } = string.Empty;
 
         private const int ReauthSpanHours = 0;
         private const int ReauthSpanMinutes = 50;
@@ -36,8 +38,7 @@ namespace Microsoft.Maker.Storage.OneDrive
         private string clientId = string.Empty;
         private string clientSecret = string.Empty;
         private string redirectUrl = string.Empty;
-        private string accessToken = string.Empty;
-        private string refreshToken = string.Empty;    
+  
 
         /// <summary>
         /// Instantiates a OneDrive connector object. Requires a call to "login" function to complete authorization.
