@@ -79,6 +79,32 @@ namespace Microsoft.Maker.Storage.OneDrive
         }
 
         /// <summary>
+        /// Reauthorizes the connection to OneDrive with the provided access and refresh tokens, and saves those tokens internally for future use
+        /// </summary>
+        /// <param name="accessToken"></param>
+        /// <param name="refreshToken"></param>
+        /// <returns></returns>
+        public IAsyncAction Reauthorize(string refreshToken)
+        {
+            return Task.Run(async () =>
+            {
+                await GetTokens(refreshToken, "refresh_token", "refresh_token");
+            }).AsAsyncAction();
+        }
+
+        /// <summary>
+        /// Calls the OneDrive reauth service with current authorization tokens
+        /// </summary>
+        /// <returns></returns>
+        public IAsyncAction Reauthorize()
+        {
+            return Task.Run(async () =>
+            {
+                await Reauthorize(refreshToken);
+            }).AsAsyncAction();
+        }
+
+        /// <summary>
         /// Uploads a file to OneDrive. This method is NOT thread safe. It assumes that the contents of the file will not change during the upload process. 
         /// </summary>
         /// <param name="file"></param> The file to upload to OneDrive. The file will be read, and a copy uploaded. The original file object will not be modified.
@@ -190,15 +216,15 @@ namespace Microsoft.Maker.Storage.OneDrive
 
         }
 
-        private async void Reauthorize(object stateInfo)
+        private async void ReauthorizeOnTimer(object stateInfo)
         {
-            await GetTokens(refreshToken, "refresh_token", "refresh_token");
+            await Reauthorize();
         }
 
         private void StartTimer()
         {
             //Set up timer to reauthenticate OneDrive login
-            TimerCallback callBack = this.Reauthorize;
+            TimerCallback callBack = this.ReauthorizeOnTimer;
             AutoResetEvent autoEvent = new AutoResetEvent(false);
             TimeSpan dueTime = new TimeSpan(0);
             TimeSpan period = new TimeSpan(ReauthSpanHours, ReauthSpanMinutes, ReauthSpanSeconds);
