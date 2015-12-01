@@ -39,7 +39,8 @@ namespace Microsoft.Maker.Storage.OneDrive
         private string clientId = string.Empty;
         private string clientSecret = string.Empty;
         private string redirectUrl = string.Empty;
-  
+
+        public event EventHandler<string> TokensChangedEvent;
 
         /// <summary>
         /// Instantiates a OneDrive connector object. Requires a call to "login" function to complete authorization.
@@ -245,6 +246,14 @@ namespace Microsoft.Maker.Storage.OneDrive
                     accessToken = GetAccessToken(responseContentString);
                     refreshToken = GetRefreshToken(responseContentString);
                     httpClient.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", accessToken);
+
+                    EventHandler<string> handler = TokensChangedEvent;
+
+                    if (null != handler)
+                    {
+                        handler(this, "Tokens Changed");
+                    }
+
                     isLoggedIn = true;
                 }
             }
