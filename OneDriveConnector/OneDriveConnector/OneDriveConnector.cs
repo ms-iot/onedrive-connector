@@ -28,6 +28,7 @@ namespace Microsoft.Maker.Storage.OneDrive
         private const string LogoutUriFormat = "https://login.live.com/oauth20_logout.srf?client_id={0}&redirect_uri={1}";
         private const string UploadUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{0}/{1}:/content";
         private const string DeleteUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{0}/{1}";
+        private const string ListUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{0}:/children";
         private const string TokenUri = "https://login.live.com/oauth20_token.srf";
         private const string TokenContentFormat = "client_id={0}&redirect_uri={1}&client_secret={2}&{3}={4}&grant_type={5}";
 
@@ -123,6 +124,40 @@ namespace Microsoft.Maker.Storage.OneDrive
                     }
                 }).AsAsyncAction();
             }
+        }
+
+        /// <summary>
+        /// List the names of all the files in a OneDrive folder.
+        /// </summary>
+        /// <param name="folderPath"></param> The path to the folder on OneDrive. Passing in an empty string will list the files in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random".
+        public async Task<List<string>> ListFilesAsync(string fileName, string pathToFile)
+        {
+            string listUri = String.Format(ListUrlFormat, pathToFile, fileName);
+            List<string> files = null;
+
+            using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(listUri)))
+            using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
+            {
+                if (response.StatusCode == HttpStatusCode.Ok)
+                {
+                    files = new List<string>();
+                    using (var inputStream = await response.Content.ReadAsInputStreamAsync())
+                    using (var memStream = new MemoryStream())
+                    using (Stream testStream = inputStream.AsStreamForRead())
+                    {
+                        await testStream.CopyToAsync(memStream);
+                        memStream.Position = 0;
+                        using (StreamReader reader = new StreamReader(memStream))
+                        {
+                            //Get file name
+                            string result = reader.ReadToEnd();
+                            
+                            //TODO: Find the filenames in the string and add to files list.
+                        }
+                    }
+                }
+            }
+            return files;
         }
 
         /// <summary>
