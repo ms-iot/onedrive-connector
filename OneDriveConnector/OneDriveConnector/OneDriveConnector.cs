@@ -68,11 +68,10 @@ namespace Microsoft.Maker.Storage.OneDrive
             this.clientSecret = clientSecret;
             this.redirectUrl = redirectUrl;
 
-            StartTimer();
-
             return Task.Run(async () =>
             {
                 await GetTokens(accessCode, "code", "authorization_code");
+                StartTimer();
             }).AsAsyncAction();
            
         }
