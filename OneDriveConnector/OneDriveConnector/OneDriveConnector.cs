@@ -158,9 +158,9 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// List the names of all the files in a OneDrive folder.
         /// </summary>
         /// <param name="folderPath"></param> The path to the folder on OneDrive. Passing in an empty string will list the files in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random".
-        public async Task<List<string>> ListFilesAsync(string fileName, string folderPath)
+        public async Task<List<string>> ListFilesAsync(string folderPath)
         {
-            string listUri = String.Format(ListUrlFormat, folderPath, fileName);
+            string listUri = String.Format(ListUrlFormat, folderPath);
             List<string> files = null;
 
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(listUri)))
