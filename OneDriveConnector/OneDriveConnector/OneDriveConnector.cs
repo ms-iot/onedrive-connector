@@ -158,29 +158,31 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// List the names of all the files in a OneDrive folder.
         /// </summary>
         /// <param name="folderPath"></param> The path to the folder on OneDrive. Passing in an empty string will list the files in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random".
-        public async Task<List<string>> ListFilesAsync(string fileName, string pathToFile)
+        public async Task<List<string>> ListFilesAsync(string fileName, string folderPath)
         {
-            string listUri = String.Format(ListUrlFormat, pathToFile, fileName);
+            string listUri = String.Format(ListUrlFormat, folderPath, fileName);
             List<string> files = null;
 
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(listUri)))
-            using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
             {
-                if (response.StatusCode == HttpStatusCode.Ok)
+                using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
                 {
-                    files = new List<string>();
-                    using (var inputStream = await response.Content.ReadAsInputStreamAsync())
-                    using (var memStream = new MemoryStream())
-                    using (Stream testStream = inputStream.AsStreamForRead())
+                    if (response.StatusCode == HttpStatusCode.Ok)
                     {
-                        await testStream.CopyToAsync(memStream);
-                        memStream.Position = 0;
-                        using (StreamReader reader = new StreamReader(memStream))
+                        files = new List<string>();
+                        using (var inputStream = await response.Content.ReadAsInputStreamAsync())
+                        using (var memStream = new MemoryStream())
+                        using (Stream testStream = inputStream.AsStreamForRead())
                         {
-                            //Get file name
-                            string result = reader.ReadToEnd();
-                            
-                            //TODO: Find the filenames in the string and add to files list.
+                            await testStream.CopyToAsync(memStream);
+                            memStream.Position = 0;
+                            using (StreamReader reader = new StreamReader(memStream))
+                            {
+                                //Get file name
+                                string result = reader.ReadToEnd();
+
+                                //TODO: Find the filenames in the string and add to files list.
+                            }
                         }
                     }
                 }
