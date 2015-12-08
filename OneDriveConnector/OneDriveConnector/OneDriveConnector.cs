@@ -171,17 +171,21 @@ namespace Microsoft.Maker.Storage.OneDrive
                     {
                         files = new List<string>();
                         using (var inputStream = await response.Content.ReadAsInputStreamAsync())
-                        using (var memStream = new MemoryStream())
-                        using (Stream testStream = inputStream.AsStreamForRead())
                         {
-                            await testStream.CopyToAsync(memStream);
-                            memStream.Position = 0;
-                            using (StreamReader reader = new StreamReader(memStream))
+                            using (var memStream = new MemoryStream())
                             {
-                                //Get file name
-                                string result = reader.ReadToEnd();
+                                using (Stream testStream = inputStream.AsStreamForRead())
+                                {
+                                    await testStream.CopyToAsync(memStream);
+                                    memStream.Position = 0;
+                                    using (StreamReader reader = new StreamReader(memStream))
+                                    {
+                                        //Get file name
+                                        string result = reader.ReadToEnd();
 
-                                //TODO: Find the filenames in the string and add to files list.
+                                        //TODO: Find the filenames in the string and add to files list.
+                                    }
+                                }
                             }
                         }
                     }
