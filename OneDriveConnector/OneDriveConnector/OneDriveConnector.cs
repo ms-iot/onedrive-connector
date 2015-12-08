@@ -167,28 +167,26 @@ namespace Microsoft.Maker.Storage.OneDrive
             {
                 using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
                 {
-                    if (response.StatusCode == HttpStatusCode.Ok)
+                    response.EnsureSuccessStatusCode();
+                    files = new List<string>();
+                    using (var inputStream = await response.Content.ReadAsInputStreamAsync())
                     {
-                        files = new List<string>();
-                        using (var inputStream = await response.Content.ReadAsInputStreamAsync())
+                        using (var memStream = new MemoryStream())
                         {
-                            using (var memStream = new MemoryStream())
+                            using (Stream testStream = inputStream.AsStreamForRead())
                             {
-                                using (Stream testStream = inputStream.AsStreamForRead())
+                                await testStream.CopyToAsync(memStream);
+                                memStream.Position = 0;
+                                using (StreamReader reader = new StreamReader(memStream))
                                 {
-                                    await testStream.CopyToAsync(memStream);
-                                    memStream.Position = 0;
-                                    using (StreamReader reader = new StreamReader(memStream))
-                                    {
-                                        //Get file name
-                                        string result = reader.ReadToEnd();
-
-                                        //TODO: Find the filenames in the string and add to files list.
-                                    }
+                                    //Get file name
+                                    string result = reader.ReadToEnd();
+                                    string[] parts = result.Split('"');
+                                    files = parts.ToList<string>();
                                 }
                             }
                         }
-                    }
+                    }                  
                 }
             }
             return files;
