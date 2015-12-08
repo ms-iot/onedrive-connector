@@ -158,38 +158,41 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// List the names of all the files in a OneDrive folder.
         /// </summary>
         /// <param name="folderPath"></param> The path to the folder on OneDrive. Passing in an empty string will list the files in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random".
-        public async Task<List<string>> ListFilesAsync(string folderPath)
+        public IAsyncOperation<IList<string>> ListFilesAsync(string folderPath)
         {
             string listUri = String.Format(ListUrlFormat, folderPath);
-            List<string> files = null;
+            IList<string> files = null;
 
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(listUri)))
             {
-                using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
+                return Task.Run<IList<string>>(async () =>
                 {
-                    response.EnsureSuccessStatusCode();
-                    files = new List<string>();
-                    using (var inputStream = await response.Content.ReadAsInputStreamAsync())
+                    using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
                     {
-                        using (var memStream = new MemoryStream())
+                        response.EnsureSuccessStatusCode();
+                        files = new List<string>();
+                        using (var inputStream = await response.Content.ReadAsInputStreamAsync())
                         {
-                            using (Stream testStream = inputStream.AsStreamForRead())
+                            using (var memStream = new MemoryStream())
                             {
-                                await testStream.CopyToAsync(memStream);
-                                memStream.Position = 0;
-                                using (StreamReader reader = new StreamReader(memStream))
+                                using (Stream testStream = inputStream.AsStreamForRead())
                                 {
-                                    //Get file name
-                                    string result = reader.ReadToEnd();
-                                    string[] parts = result.Split('"');
-                                    files = parts.ToList<string>();
+                                    await testStream.CopyToAsync(memStream);
+                                    memStream.Position = 0;
+                                    using (StreamReader reader = new StreamReader(memStream))
+                                    {
+                                        //Get file name
+                                        string result = reader.ReadToEnd();
+                                        string[] parts = result.Split('"');
+                                        files = parts.ToList();
+                                        return files;
+                                    }
                                 }
                             }
                         }
-                    }                  
-                }
+                    }
+                }).AsAsyncOperation<IList<string>>();
             }
-            return files;
         }
 
         /// <summary>
