@@ -190,7 +190,7 @@ namespace Microsoft.Maker.Storage.OneDrive
                                         {
                                             if(parts[i].Equals("name"))
                                             {
-                                                files.Add(parts[i + 1]);
+                                                files.Add(parts[i + 2]);
                                             }
                                         }
 
