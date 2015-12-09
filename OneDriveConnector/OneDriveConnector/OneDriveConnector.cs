@@ -184,6 +184,16 @@ namespace Microsoft.Maker.Storage.OneDrive
                                         //Get file name
                                         string result = reader.ReadToEnd();
                                         string[] parts = result.Split('"');
+
+                                        //For each instance of the "name" field, the following string is the file name
+                                        for(int i = 0; i < parts.Length; i++)
+                                        {
+                                            if(parts[i].Equals("name"))
+                                            {
+                                                files.Add(parts[i + 1]);
+                                            }
+                                        }
+
                                         files = parts.ToList();
                                         return files;
                                     }
