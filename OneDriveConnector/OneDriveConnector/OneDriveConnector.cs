@@ -159,10 +159,10 @@ namespace Microsoft.Maker.Storage.OneDrive
             string listUri = String.Format(ListUrlFormat, folderPath);
             IList<string> files = null;
 
-            using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(listUri)))
+            return Task.Run<IList<string>>(async () =>
             {
-                return Task.Run<IList<string>>(async () =>
-                {
+                using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(listUri)))
+                {               
                     using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
                     {
                         response.EnsureSuccessStatusCode();
@@ -197,8 +197,8 @@ namespace Microsoft.Maker.Storage.OneDrive
                             }
                         }
                     }
-                }).AsAsyncOperation<IList<string>>();
-            }
+                }
+            }).AsAsyncOperation<IList<string>>();
         }
 
         /// <summary>
