@@ -18,16 +18,15 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <summary>
         /// Is true if currently logged in to OneDrive, false otherwise.
         /// </summary>
-        public bool isLoggedIn { get; private set; } = false;        
-
-        private const int ReauthSpanHours = 0;
-        private const int ReauthSpanMinutes = 50;
-        private const int ReauthSpanSeconds = 0;
+        public bool isLoggedIn { get; private set; } = false;
+        public string accessToken { get; private set; } = string.Empty;
+        public string refreshToken { get; private set; } = string.Empty;
 
         private const string LoginUriFormat = "https://login.live.com/oauth20_authorize.srf?client_id={0}&scope=wl.offline_access onedrive.readwrite&response_type=code&redirect_uri={1}";
         private const string LogoutUriFormat = "https://login.live.com/oauth20_logout.srf?client_id={0}&redirect_uri={1}";
         private const string UploadUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{0}/{1}:/content";
         private const string DeleteUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{0}/{1}";
+        private const string ListUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{0}:/children";
         private const string TokenUri = "https://login.live.com/oauth20_token.srf";
         private const string TokenContentFormat = "client_id={0}&redirect_uri={1}&client_secret={2}&{3}={4}&grant_type={5}";
 
@@ -36,8 +35,8 @@ namespace Microsoft.Maker.Storage.OneDrive
         private string clientId = string.Empty;
         private string clientSecret = string.Empty;
         private string redirectUrl = string.Empty;
-        private string accessToken = string.Empty;
-        private string refreshToken = string.Empty;    
+
+        public event EventHandler<string> TokensChangedEvent;
 
         /// <summary>
         /// Instantiates a OneDrive connector object. Requires a call to "login" function to complete authorization.
@@ -74,6 +73,32 @@ namespace Microsoft.Maker.Storage.OneDrive
                 StartTimer();
             }).AsAsyncAction();
            
+        }
+
+        /// <summary>
+        /// Reauthorizes the connection to OneDrive with the provided access and refresh tokens, and saves those tokens internally for future use
+        /// </summary>
+        /// <param name="accessToken"></param>
+        /// <param name="refreshToken"></param>
+        /// <returns></returns>
+        public IAsyncAction Reauthorize(string refreshToken)
+        {
+            return Task.Run(async () =>
+            {
+                await GetTokens(refreshToken, "refresh_token", "refresh_token");
+            }).AsAsyncAction();
+        }
+
+        /// <summary>
+        /// Calls the OneDrive reauth service with current authorization tokens
+        /// </summary>
+        /// <returns></returns>
+        public IAsyncAction Reauthorize()
+        {
+            return Task.Run(async () =>
+            {
+                await Reauthorize(refreshToken);
+            }).AsAsyncAction();
         }
 
         /// <summary>
@@ -126,6 +151,56 @@ namespace Microsoft.Maker.Storage.OneDrive
         }
 
         /// <summary>
+        /// List the names of all the files in a OneDrive folder.
+        /// </summary>
+        /// <param name="folderPath"></param> The path to the folder on OneDrive. Passing in an empty string will list the files in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random".
+        public IAsyncOperation<IList<string>> ListFilesAsync(string folderPath)
+        {
+            return Task.Run<IList<string>>(async () =>
+            {
+                string listUri = String.Format(ListUrlFormat, folderPath);
+
+                using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(listUri)))
+                {               
+                    using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        IList<string> files = new List<string>();
+                        using (var inputStream = await response.Content.ReadAsInputStreamAsync())
+                        {
+                            using (var memStream = new MemoryStream())
+                            {
+                                using (Stream testStream = inputStream.AsStreamForRead())
+                                {
+                                    await testStream.CopyToAsync(memStream);
+                                    memStream.Position = 0;
+                                    using (StreamReader reader = new StreamReader(memStream))
+                                    {
+                                        //Get file name
+                                        string result = reader.ReadToEnd();
+                                        string[] parts = result.Split('"');
+
+                                        //For each instance of the "name" field, the following string is the file name
+                                        for(int i = 0; i < parts.Length; i++)
+                                        {
+                                            if(parts[i].Equals("name"))
+                                            {
+                                                files.Add(parts[i + 2]);
+                                            }
+                                        }
+
+                                        files = parts.ToList();
+                                        return files;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }).AsAsyncOperation<IList<string>>();
+        }
+
+        /// <summary>
         /// Disposes of any user specific data obtained during login process.
         /// </summary>
         public IAsyncAction LogoutAsync()
@@ -154,18 +229,20 @@ namespace Microsoft.Maker.Storage.OneDrive
 
         }
 
-        private async void Reauthorize(object stateInfo)
+        private async void ReauthorizeOnTimer(object stateInfo)
         {
-            await GetTokens(refreshToken, "refresh_token", "refresh_token");
+            await Reauthorize();
         }
 
         private void StartTimer()
         {
             //Set up timer to reauthenticate OneDrive login
-            TimerCallback callBack = this.Reauthorize;
+            TimerCallback callBack = this.ReauthorizeOnTimer;
             AutoResetEvent autoEvent = new AutoResetEvent(false);
             TimeSpan dueTime = new TimeSpan(0);
-            TimeSpan period = new TimeSpan(ReauthSpanHours, ReauthSpanMinutes, ReauthSpanSeconds);
+
+            //use 50 minutes, as the accessToken expires after one hour by default
+            TimeSpan period = new TimeSpan(0, 50, 0);
             refreshTimer = new Timer(callBack, autoEvent, dueTime, period);
         }
 
@@ -183,6 +260,14 @@ namespace Microsoft.Maker.Storage.OneDrive
                     accessToken = GetAccessToken(responseContentString);
                     refreshToken = GetRefreshToken(responseContentString);
                     httpClient.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", accessToken);
+
+                    EventHandler<string> handler = TokensChangedEvent;
+
+                    if (null != handler)
+                    {
+                        handler(this, "Tokens Changed");
+                    }
+
                     isLoggedIn = true;
                 }
             }
