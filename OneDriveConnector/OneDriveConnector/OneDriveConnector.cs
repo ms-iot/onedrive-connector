@@ -22,10 +22,6 @@ namespace Microsoft.Maker.Storage.OneDrive
         public string accessToken { get; private set; } = string.Empty;
         public string refreshToken { get; private set; } = string.Empty;
 
-        private const int ReauthSpanHours = 0;
-        private const int ReauthSpanMinutes = 50;
-        private const int ReauthSpanSeconds = 0;
-
         private const string LoginUriFormat = "https://login.live.com/oauth20_authorize.srf?client_id={0}&scope=wl.offline_access onedrive.readwrite&response_type=code&redirect_uri={1}";
         private const string LogoutUriFormat = "https://login.live.com/oauth20_logout.srf?client_id={0}&redirect_uri={1}";
         private const string UploadUrlFormat = "https://api.onedrive.com/v1.0/drive/root:{0}/{1}:/content";
@@ -245,7 +241,9 @@ namespace Microsoft.Maker.Storage.OneDrive
             TimerCallback callBack = this.ReauthorizeOnTimer;
             AutoResetEvent autoEvent = new AutoResetEvent(false);
             TimeSpan dueTime = new TimeSpan(0);
-            TimeSpan period = new TimeSpan(ReauthSpanHours, ReauthSpanMinutes, ReauthSpanSeconds);
+
+            //use 50 minutes, as the accessToken expires after one hour by default
+            TimeSpan period = new TimeSpan(0, 50, 0);
             refreshTimer = new Timer(callBack, autoEvent, dueTime, period);
         }
 
