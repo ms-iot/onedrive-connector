@@ -194,8 +194,6 @@ namespace Microsoft.Maker.Storage.OneDrive
                                                 files.Add(parts[i + 2]);
                                             }
                                         }
-
-                                        files = parts.ToList();
                                         return files;
                                     }
                                 }
