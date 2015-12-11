@@ -78,14 +78,20 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <summary>
         /// Reauthorizes the connection to OneDrive with the provided access and refresh tokens, and saves those tokens internally for future use
         /// </summary>
-        /// <param name="accessToken"></param>
+        /// <param name="clientId"></param> Client ID obtained from app registration
+        /// <param name="clientSecret"></param> Client secret obtained from app registration
+        /// <param name="redirectUrl"></param> Redirect URL obtained from app registration
         /// <param name="refreshToken"></param>
         /// <returns></returns>
-        public IAsyncAction Reauthorize(string refreshToken)
+        public IAsyncAction Reauthorize(string clientIdIn, string clientSecretIn, string redirectUrlIn, string refreshTokenIn)
         {
+            clientId = clientIdIn;
+            clientSecret = clientSecretIn;
+            redirectUrl = redirectUrlIn;
+
             return Task.Run(async () =>
             {
-                await GetTokens(refreshToken, "refresh_token", "refresh_token");
+                await GetTokens(refreshTokenIn, "refresh_token", "refresh_token");
             }).AsAsyncAction();
         }
 
@@ -97,7 +103,7 @@ namespace Microsoft.Maker.Storage.OneDrive
         {
             return Task.Run(async () =>
             {
-                await Reauthorize(refreshToken);
+                await Reauthorize(clientId, clientSecret, redirectUrl, refreshToken);
             }).AsAsyncAction();
         }
 
