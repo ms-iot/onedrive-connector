@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.Maker.Storage;
-
+using System.Net;
+using Windows.Storage;
+using System.IO;
+using System.Collections.Generic;
 
 namespace OneDriveConnector.Tests
 {
@@ -9,10 +13,27 @@ namespace OneDriveConnector.Tests
     public class OneDriveConnectorTests
     {
         [TestMethod]
-        public async void TestLoginFailsAsExpected()
+        public void TestAccessTokenRequestFormatter()
         {
             // arange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
+            string receivedMessage = "";
+            string expectedMessage = "https://login.live.com/oauth20_authorize.srf?client_id=clientId&scope=wl.offline_access onedrive.readwrite&response_type=code&redirect_uri=redirectUri";
+
+            //act
+            receivedMessage = oneDriveConnector.FormatAccessTokenUriString("clientId", "redirectUri");
+
+            //assert
+            Assert.AreEqual(expectedMessage, receivedMessage);
+        }
+
+        [TestMethod]
+        public async Task TestLoginResponseWithoutCredentials()
+        {
+            // arange
+            var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
+            string receivedExceptionMessage = "";
+            string expectedExceptionMessage = "Bad request (400).\r\n\r\nResponse status code does not indicate success: 400 (Bad Request).";
 
             //act
             try
@@ -21,10 +42,79 @@ namespace OneDriveConnector.Tests
             }
             catch (Exception e)
             {
-
+                receivedExceptionMessage = e.Message;
             }
 
             //assert
+            Assert.AreEqual(expectedExceptionMessage, receivedExceptionMessage);
+        }
+
+        [TestMethod]
+        public async Task TestUploadResponseWithoutCredentials()
+        {
+            // arange
+            var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
+            StorageFile file = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("test.test", CreationCollisionOption.ReplaceExisting);
+            string receivedExceptionMessage = "";
+            string expectedExceptionMessage = "Unauthorized (401).\r\n\r\nResponse status code does not indicate success: 401 (Unauthorized).";
+
+            //act
+            try
+            {
+                await oneDriveConnector.UploadFileAsync(file, "");
+            }
+            catch (Exception e)
+            {
+                receivedExceptionMessage = e.Message;
+            }
+
+            //assert
+            Assert.AreEqual(expectedExceptionMessage, receivedExceptionMessage);
+        }
+
+        [TestMethod]
+        public async Task TestListResponseWithoutCredentials()
+        {
+            // arange
+            var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
+            IList<string> list;
+            string receivedExceptionMessage = "";
+            string expectedExceptionMessage = "Unauthorized (401).\r\n\r\nResponse status code does not indicate success: 401 (Unauthorized).";
+
+            //act
+            try
+            {
+                list = await oneDriveConnector.ListFilesAsync("");
+            }
+            catch (Exception e)
+            {
+                receivedExceptionMessage = e.Message;
+            }
+
+            //assert
+            Assert.AreEqual(expectedExceptionMessage, receivedExceptionMessage);
+        }
+
+        [TestMethod]
+        public async Task TestDeleteResponseWithoutCredentials()
+        {
+            // arange
+            var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
+            string receivedExceptionMessage = "";
+            string expectedExceptionMessage = "Unauthorized (401).\r\n\r\nResponse status code does not indicate success: 401 (Unauthorized).";
+
+            //act
+            try
+            {
+                await oneDriveConnector.DeleteFileAsync("name", "");
+            }
+            catch (Exception e)
+            {
+                receivedExceptionMessage = e.Message;
+            }
+
+            //assert
+            Assert.AreEqual(expectedExceptionMessage, receivedExceptionMessage);
         }
     }
 }
