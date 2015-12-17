@@ -4,7 +4,7 @@
   <mp:PhoneIdentity PhoneProductId="7762ed00-605a-47a5-8b73-f243352d95e0" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>OneDriveConnector.Tests</DisplayName>
-    <PublisherDisplayName>mamcke</PublisherDisplayName>
+    <PublisherDisplayName>Microsoft</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
