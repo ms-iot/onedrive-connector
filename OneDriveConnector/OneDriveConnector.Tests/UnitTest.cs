@@ -15,7 +15,7 @@ namespace OneDriveConnector.Tests
         [TestMethod]
         public void TestAccessTokenRequestFormatter()
         {
-            // arange
+            // arrange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
             string receivedMessage = "";
             string expectedMessage = "https://login.live.com/oauth20_authorize.srf?client_id=clientId&scope=wl.offline_access onedrive.readwrite&response_type=code&redirect_uri=redirectUri";
@@ -30,7 +30,7 @@ namespace OneDriveConnector.Tests
         [TestMethod]
         public async Task TestLoginResponseWithoutCredentials()
         {
-            // arange
+            // arrange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
             string receivedExceptionMessage = "";
             string expectedExceptionMessage = "Bad request (400).\r\n\r\nResponse status code does not indicate success: 400 (Bad Request).";
@@ -52,7 +52,7 @@ namespace OneDriveConnector.Tests
         [TestMethod]
         public async Task TestUploadResponseWithoutCredentials()
         {
-            // arange
+            // arrange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
             StorageFile file = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("test.test", CreationCollisionOption.ReplaceExisting);
             string receivedExceptionMessage = "";
@@ -75,7 +75,7 @@ namespace OneDriveConnector.Tests
         [TestMethod]
         public async Task TestListResponseWithoutCredentials()
         {
-            // arange
+            // arrange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
             IList<string> list;
             string receivedExceptionMessage = "";
@@ -98,7 +98,7 @@ namespace OneDriveConnector.Tests
         [TestMethod]
         public async Task TestDeleteResponseWithoutCredentials()
         {
-            // arange
+            // arrange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
             string receivedExceptionMessage = "";
             string expectedExceptionMessage = "Unauthorized (401).\r\n\r\nResponse status code does not indicate success: 401 (Unauthorized).";
