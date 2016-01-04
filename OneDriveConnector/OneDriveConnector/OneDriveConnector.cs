@@ -46,6 +46,7 @@ namespace Microsoft.Maker.Storage.OneDrive
             var filter = new HttpBaseProtocolFilter();
             filter.CacheControl.ReadBehavior = HttpCacheReadBehavior.MostRecent;
             filter.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+            filter.AllowUI = false;
             httpClient = new HttpClient(filter);
         }
 
