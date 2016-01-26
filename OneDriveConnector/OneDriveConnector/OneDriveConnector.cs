@@ -62,7 +62,8 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <param name="clientSecret"></param> Client secret obtained from app registration
         /// <param name="redirectUrl"></param> Redirect URL obtained from app registration
         /// <param name="accessCode"></param> Access Code obtained from earlier login prompt.
-        public IAsyncAction LoginAsync(string clientId, string clientSecret, string redirectUrl, string accessCode)
+        /// <returns>The response message given by the server for the request</returns>
+        public IAsyncOperation<HttpResponseMessage> LoginAsync(string clientId, string clientSecret, string redirectUrl, string accessCode)
         {
             this.clientId = clientId;
             this.clientSecret = clientSecret;
@@ -70,10 +71,11 @@ namespace Microsoft.Maker.Storage.OneDrive
 
             return Task.Run(async () =>
             {
-                await GetTokens(accessCode, "code", "authorization_code");
+                HttpResponseMessage response = await GetTokens(accessCode, "code", "authorization_code");
                 StartTimer();
-            }).AsAsyncAction();
-           
+                return response;
+            }).AsAsyncOperation<HttpResponseMessage>();
+
         }
 
         /// <summary>
@@ -83,8 +85,8 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// <param name="clientSecret"></param> Client secret obtained from app registration
         /// <param name="redirectUrl"></param> Redirect URL obtained from app registration
         /// <param name="refreshToken"></param>
-        /// <returns></returns>
-        public IAsyncAction Reauthorize(string clientIdIn, string clientSecretIn, string redirectUrlIn, string refreshTokenIn)
+        /// <returns>The response message given by the server for the request</returns>
+        public IAsyncOperation<HttpResponseMessage> Reauthorize(string clientIdIn, string clientSecretIn, string redirectUrlIn, string refreshTokenIn)
         {
             clientId = clientIdIn;
             clientSecret = clientSecretIn;
@@ -92,20 +94,22 @@ namespace Microsoft.Maker.Storage.OneDrive
 
             return Task.Run(async () =>
             {
-                await GetTokens(refreshTokenIn, "refresh_token", "refresh_token");
-            }).AsAsyncAction();
+                HttpResponseMessage response = await GetTokens(refreshTokenIn, "refresh_token", "refresh_token");
+                return response;
+            }).AsAsyncOperation<HttpResponseMessage>();
         }
 
         /// <summary>
         /// Calls the OneDrive reauth service with current authorization tokens
         /// </summary>
-        /// <returns></returns>
-        public IAsyncAction Reauthorize()
+        /// <returns>The response message given by the server for the request</returns>
+        public IAsyncOperation<HttpResponseMessage> Reauthorize()
         {
             return Task.Run(async () =>
             {
-                await Reauthorize(clientId, clientSecret, redirectUrl, refreshToken);
-            }).AsAsyncAction();
+                HttpResponseMessage response = await Reauthorize(clientId, clientSecret, redirectUrl, refreshToken);
+                return response;
+            }).AsAsyncOperation<HttpResponseMessage>();
         }
 
         /// <summary>
@@ -113,7 +117,8 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// </summary>
         /// <param name="file"></param> The file to upload to OneDrive. The file will be read, and a copy uploaded. The original file object will not be modified.
         /// <param name="destinationPath"></param> The path to the destination on Onedrive. Passing in an empty string will place the file in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random"
-        public IAsyncAction UploadFileAsync(StorageFile file, string destinationPath)
+        /// <returns>The response message given by the server for the request</returns>
+        public IAsyncOperation<HttpResponseMessage> UploadFileAsync(StorageFile file, string destinationPath)
         {
             string uploadUri = String.Format(UploadUrlFormat, destinationPath, file.Name);
 
@@ -127,14 +132,14 @@ namespace Microsoft.Maker.Storage.OneDrive
                         {
                             requestMessage.Content = streamContent;
 
-                            using (HttpResponseMessage responseMessage = await httpClient.SendRequestAsync(requestMessage))
+                            using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
                             {
-                                responseMessage.EnsureSuccessStatusCode();
+                                return response;
                             }
                         }
                     }
                 }
-             }).AsAsyncAction(); 
+             }).AsAsyncOperation<HttpResponseMessage>();
         }
 
         /// <summary>
@@ -142,7 +147,8 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// </summary>
         /// <param name="fileName"></param> The name of the file to delete
         /// <param name="pathToFile"></param> The path to the file on Onedrive. Passing in an empty string will look for the file in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random"
-        public IAsyncAction DeleteFileAsync(string fileName, string pathToFile)
+        /// <returns>The response message given by the server for the request</returns>
+        public IAsyncOperation<HttpResponseMessage> DeleteFileAsync(string fileName, string pathToFile)
         {
             string deleteUri = String.Format(DeleteUrlFormat, pathToFile, fileName);
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete, new Uri(deleteUri)))
@@ -151,9 +157,9 @@ namespace Microsoft.Maker.Storage.OneDrive
                 {
                     using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
                     {
-                        response.EnsureSuccessStatusCode();
+                        return response;
                     }
-                }).AsAsyncAction();
+                }).AsAsyncOperation<HttpResponseMessage>();
             }
         }
 
@@ -161,9 +167,10 @@ namespace Microsoft.Maker.Storage.OneDrive
         /// List the names of all the files in a OneDrive folder.
         /// </summary>
         /// <param name="folderPath"></param> The path to the folder on OneDrive. Passing in an empty string will list the files in the root of Onedrive. Other folder paths should be passed in with a leading '/' character, such as "/Documents" or "/Pictures/Random".
-        public IAsyncOperation<IList<string>> ListFilesAsync(string folderPath)
+        /// <returns>A key-value pair containing the response message given by the server for the request as the key and a list containing the names of the files as the value</returns>
+        public IAsyncOperation<KeyValuePair<HttpResponseMessage, IList<string>>> ListFilesAsync(string folderPath)
         {
-            return Task.Run<IList<string>>(async () =>
+            return Task.Run(async () =>
             {
                 string listUri = String.Format(ListUrlFormat, folderPath);
 
@@ -195,20 +202,21 @@ namespace Microsoft.Maker.Storage.OneDrive
                                                 files.Add(parts[i + 2]);
                                             }
                                         }
-                                        return files;
+                                        return new KeyValuePair<HttpResponseMessage, IList<string>>(response, files);
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }).AsAsyncOperation<IList<string>>();
+            }).AsAsyncOperation<KeyValuePair<HttpResponseMessage, IList<string>>>();
         }
 
         /// <summary>
         /// Disposes of any user specific data obtained during login process.
         /// </summary>
-        public IAsyncAction LogoutAsync()
+        /// <returns>The response message given by the server for the request</returns>
+        public IAsyncOperation<HttpResponseMessage> LogoutAsync()
         {
             clientId = string.Empty;
             clientSecret = string.Empty;
@@ -227,9 +235,9 @@ namespace Microsoft.Maker.Storage.OneDrive
                 {
                     using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
                     {
-                        response.EnsureSuccessStatusCode();
+                        return response;
                     }
-                }).AsAsyncAction();
+                }).AsAsyncOperation<HttpResponseMessage>();
             }
 
         }
@@ -251,7 +259,7 @@ namespace Microsoft.Maker.Storage.OneDrive
             refreshTimer = new Timer(callBack, autoEvent, dueTime, period);
         }
 
-        private async Task GetTokens(string accessCodeOrRefreshToken, string requestType, string grantType)
+        private async Task<HttpResponseMessage> GetTokens(string accessCodeOrRefreshToken, string requestType, string grantType)
         {          
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(TokenUri)))
             {
@@ -274,6 +282,7 @@ namespace Microsoft.Maker.Storage.OneDrive
                     }
 
                     isLoggedIn = true;
+                    return responseMessage;
                 }
             }
 

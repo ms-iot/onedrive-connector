@@ -84,7 +84,8 @@ namespace OneDriveConnector.Tests
             //act
             try
             {
-                list = await oneDriveConnector.ListFilesAsync("");
+                var response = await oneDriveConnector.ListFilesAsync("");
+                list = response.Value;
             }
             catch (Exception e)
             {
