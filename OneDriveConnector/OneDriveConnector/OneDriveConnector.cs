@@ -178,7 +178,6 @@ namespace Microsoft.Maker.Storage.OneDrive
                 {               
                     using (HttpResponseMessage response = await httpClient.SendRequestAsync(requestMessage))
                     {
-                        response.EnsureSuccessStatusCode();
                         IList<string> files = new List<string>();
                         using (var inputStream = await response.Content.ReadAsInputStreamAsync())
                         {
@@ -268,7 +267,6 @@ namespace Microsoft.Maker.Storage.OneDrive
                 requestMessage.Content.Headers.ContentType = new HttpMediaTypeHeaderValue("application/x-www-form-urlencoded");
                 using (HttpResponseMessage responseMessage = await httpClient.SendRequestAsync(requestMessage))
                 {
-                    responseMessage.EnsureSuccessStatusCode();
                     string responseContentString = await responseMessage.Content.ReadAsStringAsync();
                     accessToken = GetAccessToken(responseContentString);
                     refreshToken = GetRefreshToken(responseContentString);
