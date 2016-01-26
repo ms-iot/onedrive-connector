@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using Microsoft.Maker.Storage;
-using System.Net;
 using Windows.Storage;
 using System.IO;
 using System.Collections.Generic;
+using Windows.Web.Http;
 
 namespace OneDriveConnector.Tests
 {
@@ -32,21 +31,16 @@ namespace OneDriveConnector.Tests
         {
             // arrange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
-            string receivedExceptionMessage = "";
-            string expectedExceptionMessage = "Bad request (400).\r\n\r\nResponse status code does not indicate success: 400 (Bad Request).";
+            HttpResponseMessage response;
+            HttpStatusCode receivedStatus;
+            HttpStatusCode expectedStatus = HttpStatusCode.BadRequest;
 
             //act
-            try
-            {
-                await oneDriveConnector.LoginAsync("noClientID", "noClientSecret", "noRedirectUrl", "noAccessCode");
-            }
-            catch (Exception e)
-            {
-                receivedExceptionMessage = e.Message;
-            }
+            response = await oneDriveConnector.LoginAsync("noClientID", "noClientSecret", "noRedirectUrl", "noAccessCode");
+            receivedStatus = response.StatusCode;
 
             //assert
-            Assert.AreEqual(expectedExceptionMessage, receivedExceptionMessage);
+            Assert.AreEqual(expectedStatus, receivedStatus);
         }
 
         [TestMethod]
@@ -55,21 +49,16 @@ namespace OneDriveConnector.Tests
             // arrange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
             StorageFile file = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("test.test", CreationCollisionOption.ReplaceExisting);
-            string receivedExceptionMessage = "";
-            string expectedExceptionMessage = "Unauthorized (401).\r\n\r\nResponse status code does not indicate success: 401 (Unauthorized).";
+            HttpResponseMessage response;
+            HttpStatusCode receivedStatus;
+            HttpStatusCode expectedStatus = HttpStatusCode.Unauthorized;
 
             //act
-            try
-            {
-                await oneDriveConnector.UploadFileAsync(file, "");
-            }
-            catch (Exception e)
-            {
-                receivedExceptionMessage = e.Message;
-            }
+            response = await oneDriveConnector.UploadFileAsync(file, "");
+            receivedStatus = response.StatusCode;
 
             //assert
-            Assert.AreEqual(expectedExceptionMessage, receivedExceptionMessage);
+            Assert.AreEqual(expectedStatus, receivedStatus);
         }
 
         [TestMethod]
@@ -77,23 +66,17 @@ namespace OneDriveConnector.Tests
         {
             // arrange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
+            KeyValuePair<HttpResponseMessage, IList<string>> response;
             IList<string> list;
-            string receivedExceptionMessage = "";
-            string expectedExceptionMessage = "Unauthorized (401).\r\n\r\nResponse status code does not indicate success: 401 (Unauthorized).";
+            HttpStatusCode receivedStatus;
+            HttpStatusCode expectedStatus = HttpStatusCode.Unauthorized;
 
             //act
-            try
-            {
-                var response = await oneDriveConnector.ListFilesAsync("");
-                list = response.Value;
-            }
-            catch (Exception e)
-            {
-                receivedExceptionMessage = e.Message;
-            }
+            response = await oneDriveConnector.ListFilesAsync("");
+            receivedStatus = response.Key.StatusCode;
 
             //assert
-            Assert.AreEqual(expectedExceptionMessage, receivedExceptionMessage);
+            Assert.AreEqual(expectedStatus, receivedStatus);
         }
 
         [TestMethod]
@@ -101,21 +84,16 @@ namespace OneDriveConnector.Tests
         {
             // arrange
             var oneDriveConnector = new Microsoft.Maker.Storage.OneDrive.OneDriveConnector();
-            string receivedExceptionMessage = "";
-            string expectedExceptionMessage = "Unauthorized (401).\r\n\r\nResponse status code does not indicate success: 401 (Unauthorized).";
+            HttpResponseMessage response;
+            HttpStatusCode receivedStatus;
+            HttpStatusCode expectedStatus = HttpStatusCode.Unauthorized;
 
             //act
-            try
-            {
-                await oneDriveConnector.DeleteFileAsync("name", "");
-            }
-            catch (Exception e)
-            {
-                receivedExceptionMessage = e.Message;
-            }
+            response = await oneDriveConnector.DeleteFileAsync("name", "");
+            receivedStatus = response.StatusCode;
 
             //assert
-            Assert.AreEqual(expectedExceptionMessage, receivedExceptionMessage);
+            Assert.AreEqual(expectedStatus, receivedStatus);
         }
     }
 }
