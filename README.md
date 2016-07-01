@@ -35,3 +35,7 @@ If the solution is already open in Visual Studio, you may need to reload the sol
 **DeleteFile(string fileName, string pathToFile)**: Deletes the specified file from the specified location on OneDrive.
 
 **Logout()**: Sends a logout message to OneDrive to cancel active tokens, and disposes of all user specific information obtained from OneDrive or provided to the Login method.
+
+===
+
+This project has adopted the [Microsoft Open Source Code of Conduct](http://microsoft.github.io/codeofconduct). For more information see the [Code of Conduct FAQ](http://microsoft.github.io/codeofconduct/faq.md) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments. 
